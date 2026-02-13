@@ -8,9 +8,6 @@ from flask import Flask, render_template_string, jsonify, request
 import base64
 import hashlib
 from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import os
 import secrets
 
 app = Flask(__name__)
@@ -28,7 +25,7 @@ class EncryptionToolkit:
         try:
             f = Fernet(key)
             encrypted = f.encrypt(text.encode())
-            return base64.urlsafe_b64encode(encrypted).decode()
+            return encrypted.decode()
         except Exception as e:
             return None
     
@@ -36,7 +33,7 @@ class EncryptionToolkit:
         """Decrypt text using Fernet symmetric encryption."""
         try:
             f = Fernet(key)
-            encrypted_bytes = base64.urlsafe_b64decode(encrypted_text.encode())
+            encrypted_bytes = encrypted_text.encode()
             decrypted = f.decrypt(encrypted_bytes)
             return decrypted.decode()
         except Exception as e:
@@ -75,7 +72,7 @@ class EncryptionToolkit:
         """Decode Base64 text."""
         try:
             return base64.b64decode(encoded_text.encode()).decode()
-        except:
+        except Exception:
             return None
 
 toolkit = EncryptionToolkit()
@@ -179,6 +176,12 @@ HTML_TEMPLATE = """
     <script>
         let currentEncryptionKey = null;
         
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
         async function generateEncryptionKey() {
             try {
                 const response = await fetch('/api/generate-key', { method: 'POST' });
@@ -211,7 +214,7 @@ HTML_TEMPLATE = """
                 
                 const data = await response.json();
                 const output = document.getElementById('encryptionOutput');
-                output.innerHTML = `<strong>Encrypted:</strong><br>${data.encrypted}`;
+                output.innerHTML = `<strong>Encrypted:</strong><br>${escapeHtml(data.encrypted)}`;
                 output.style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
@@ -240,9 +243,9 @@ HTML_TEMPLATE = """
                 const data = await response.json();
                 const output = document.getElementById('encryptionOutput');
                 if (data.decrypted) {
-                    output.innerHTML = `<strong>Decrypted:</strong><br>${data.decrypted}`;
+                    output.innerHTML = `<strong>Decrypted:</strong><br>${escapeHtml(data.decrypted)}`;
                 } else {
-                    output.innerHTML = `<strong>Error:</strong> Failed to decrypt. Check your key and encrypted text.`;
+                    output.textContent = 'Error: Failed to decrypt. Check your key and encrypted text.';
                 }
                 output.style.display = 'block';
             } catch (error) {
@@ -268,7 +271,7 @@ HTML_TEMPLATE = """
                 
                 const data = await response.json();
                 const output = document.getElementById('hashOutput');
-                output.innerHTML = `<strong>${algorithm.toUpperCase()} Hash:</strong><br>${data.hash}`;
+                output.innerHTML = `<strong>${escapeHtml(algorithm.toUpperCase())} Hash:</strong><br>${escapeHtml(data.hash)}`;
                 output.style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
@@ -288,7 +291,7 @@ HTML_TEMPLATE = """
                 
                 const data = await response.json();
                 const output = document.getElementById('passwordOutput');
-                output.innerHTML = `<strong>Generated Password:</strong><br>${data.password}`;
+                output.innerHTML = `<strong>Generated Password:</strong><br>${escapeHtml(data.password)}`;
                 output.style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
@@ -312,7 +315,7 @@ HTML_TEMPLATE = """
                 
                 const data = await response.json();
                 const output = document.getElementById('base64Output');
-                output.innerHTML = `<strong>Base64 Encoded:</strong><br>${data.encoded}`;
+                output.innerHTML = `<strong>Base64 Encoded:</strong><br>${escapeHtml(data.encoded)}`;
                 output.style.display = 'block';
             } catch (error) {
                 console.error('Error:', error);
@@ -337,9 +340,9 @@ HTML_TEMPLATE = """
                 const data = await response.json();
                 const output = document.getElementById('base64Output');
                 if (data.decoded) {
-                    output.innerHTML = `<strong>Base64 Decoded:</strong><br>${data.decoded}`;
+                    output.innerHTML = `<strong>Base64 Decoded:</strong><br>${escapeHtml(data.decoded)}`;
                 } else {
-                    output.innerHTML = `<strong>Error:</strong> Invalid Base64 text`;
+                    output.textContent = 'Error: Invalid Base64 text';
                 }
                 output.style.display = 'block';
             } catch (error) {
@@ -366,25 +369,37 @@ def generate_key():
 @app.route('/api/encrypt', methods=['POST'])
 def encrypt():
     data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
     text = data.get('text')
-    key = data.get('key').encode()
+    key = data.get('key')
+    if not text or not key:
+        return jsonify({'error': 'Missing text or key'}), 400
     
-    encrypted = toolkit.encrypt_text(text, key)
+    encrypted = toolkit.encrypt_text(text, key.encode())
     return jsonify({'encrypted': encrypted})
 
 @app.route('/api/decrypt', methods=['POST'])
 def decrypt():
     data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
     encrypted_text = data.get('encrypted_text')
-    key = data.get('key').encode()
+    key = data.get('key')
+    if not encrypted_text or not key:
+        return jsonify({'error': 'Missing encrypted_text or key'}), 400
     
-    decrypted = toolkit.decrypt_text(encrypted_text, key)
+    decrypted = toolkit.decrypt_text(encrypted_text, key.encode())
     return jsonify({'decrypted': decrypted})
 
 @app.route('/api/hash', methods=['POST'])
 def hash_text():
     data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
     text = data.get('text')
+    if not text:
+        return jsonify({'error': 'Missing text'}), 400
     algorithm = data.get('algorithm', 'sha256')
     
     hash_result = toolkit.hash_text(text, algorithm)
@@ -393,6 +408,8 @@ def hash_text():
 @app.route('/api/generate-password', methods=['POST'])
 def generate_password():
     data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
     length = data.get('length', 12)
     include_symbols = data.get('include_symbols', True)
     
@@ -402,7 +419,11 @@ def generate_password():
 @app.route('/api/base64-encode', methods=['POST'])
 def encode_base64():
     data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
     text = data.get('text')
+    if not text:
+        return jsonify({'error': 'Missing text'}), 400
     
     encoded = toolkit.encode_base64(text)
     return jsonify({'encoded': encoded})
@@ -410,11 +431,15 @@ def encode_base64():
 @app.route('/api/base64-decode', methods=['POST'])
 def decode_base64():
     data = request.get_json()
+    if not data:
+        return jsonify({'error': 'JSON body required'}), 400
     encoded_text = data.get('encoded_text')
+    if not encoded_text:
+        return jsonify({'error': 'Missing encoded_text'}), 400
     
     decoded = toolkit.decode_base64(encoded_text)
     return jsonify({'decoded': decoded})
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)
 
