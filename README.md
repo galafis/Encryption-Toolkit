@@ -1,238 +1,171 @@
-# 🚀 Encryption Toolkit
+# Encryption Toolkit
 
-> Professional project by Gabriel Demetrios Lafis
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-2.0+-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com)
+[![cryptography](https://img.shields.io/badge/cryptography-3.4+-blue)](https://cryptography.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB.svg)](https://img.shields.io/badge/)
-[![Flask](https://img.shields.io/badge/Flask-3.0-000000.svg)](https://img.shields.io/badge/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[Portugues](#portugues) | [English](#english)
 
-[English](#english) | [Português](#português)
+---
+
+## Portugues
+
+### Visao Geral
+
+Aplicacao web Python/Flask para operacoes criptograficas. Um unico arquivo fonte (`encryption_toolkit.py`, ~430 linhas) que oferece interface web interativa e API REST.
+
+### Funcionalidades
+
+- **Criptografia simetrica** — cifrar e decifrar texto com Fernet (AES-128-CBC + HMAC)
+- **Hash de texto** — SHA-256, SHA-512, SHA-1, MD5
+- **Gerador de senhas** — comprimento e conjunto de caracteres configuraveis
+- **Codificacao Base64** — codificar e decodificar texto
+- **Interface web** — UI interativa servida pelo Flask
+- **API REST** — endpoints JSON para todas as operacoes
+
+### Arquitetura
+
+```mermaid
+graph LR
+    User([Usuario]) --> Flask[Flask Web UI / API]
+    Flask --> Fernet[Fernet Encryption]
+    Flask --> SHA256[SHA-256 Hash]
+    Flask --> PwGen[Password Generator]
+    Flask --> B64[Base64 Codec]
+    Fernet --> Resp([Resposta])
+    SHA256 --> Resp
+    PwGen --> Resp
+    B64 --> Resp
+```
+
+### Endpoints da API
+
+| Metodo | Rota | Descricao |
+|--------|------|-----------|
+| POST | `/api/encrypt` | Cifrar texto |
+| POST | `/api/decrypt` | Decifrar texto |
+| POST | `/api/hash` | Gerar hash |
+| POST | `/api/generate-password` | Gerar senha |
+| POST | `/api/base64-encode` | Codificar Base64 |
+| POST | `/api/base64-decode` | Decodificar Base64 |
+| POST | `/api/generate-key` | Gerar chave Fernet |
+
+### Inicio Rapido
+
+```bash
+git clone https://github.com/galafis/Encryption-Toolkit.git
+cd Encryption-Toolkit
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python encryption_toolkit.py
+```
+
+Acesse `http://localhost:5000` no navegador.
+
+### Executar Testes
+
+```bash
+pip install pytest
+pytest tests/ -v
+```
+
+### Estrutura do Projeto
+
+```
+Encryption-Toolkit/
+├── encryption_toolkit.py   # Aplicacao (Flask + logica)
+├── requirements.txt
+├── tests/
+│   ├── __init__.py
+│   └── test_main.py
+├── LICENSE
+└── README.md
+```
 
 ---
 
 ## English
 
-### 🎯 Overview
+### Overview
 
-**Encryption Toolkit** is a production-grade Python application that showcases modern software engineering practices including clean architecture, comprehensive testing, containerized deployment, and CI/CD readiness.
+Python/Flask web application for cryptographic operations. A single source file (`encryption_toolkit.py`, ~430 lines) providing an interactive web interface and REST API.
 
-The codebase comprises **420 lines** of source code organized across **1 modules**, following industry best practices for maintainability, scalability, and code quality.
+### Features
 
-### ✨ Key Features
+- **Symmetric encryption** — encrypt and decrypt text with Fernet (AES-128-CBC + HMAC)
+- **Text hashing** — SHA-256, SHA-512, SHA-1, MD5
+- **Password generator** — configurable length and character sets
+- **Base64 encoding** — encode and decode text
+- **Web interface** — interactive UI served by Flask
+- **REST API** — JSON endpoints for all operations
 
-- **🏗️ Object-Oriented**: 1 core classes with clean architecture
-- **📐 Clean Architecture**: Modular design with clear separation of concerns
-- **🧪 Test Coverage**: Unit and integration tests for reliability
-- **📚 Documentation**: Comprehensive inline documentation and examples
-- **🔧 Configuration**: Environment-based configuration management
-
-### 🏗️ Architecture
+### Architecture
 
 ```mermaid
-graph TB
-    subgraph Client["🖥️ Client Layer"]
-        A[Web Client]
-        B[API Documentation]
-    end
-    
-    subgraph API["⚡ API Layer"]
-        C[Middleware Pipeline]
-        D[Route Handlers]
-        E[Business Logic]
-    end
-    
-    subgraph Data["💾 Data Layer"]
-        F[(Primary Database)]
-        G[Cache]
-    end
-    
-    A --> C
-    B --> C
-    C --> D --> E
-    E --> F
-    E --> G
-    
-    style Client fill:#e1f5fe
-    style API fill:#f3e5f5
-    style Data fill:#fff3e0
+graph LR
+    User([User]) --> Flask[Flask Web UI / API]
+    Flask --> Fernet[Fernet Encryption]
+    Flask --> SHA256[SHA-256 Hash]
+    Flask --> PwGen[Password Generator]
+    Flask --> B64[Base64 Codec]
+    Fernet --> Resp([Response])
+    SHA256 --> Resp
+    PwGen --> Resp
+    B64 --> Resp
 ```
 
-### 🚀 Quick Start
+### API Endpoints
 
-#### Prerequisites
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/encrypt` | Encrypt text |
+| POST | `/api/decrypt` | Decrypt text |
+| POST | `/api/hash` | Generate hash |
+| POST | `/api/generate-password` | Generate password |
+| POST | `/api/base64-encode` | Encode Base64 |
+| POST | `/api/base64-decode` | Decode Base64 |
+| POST | `/api/generate-key` | Generate Fernet key |
 
-- Python 3.12+
-- pip (Python package manager)
-
-#### Installation
+### Quick Start
 
 ```bash
-# Clone the repository
 git clone https://github.com/galafis/Encryption-Toolkit.git
 cd Encryption-Toolkit
-
-# Create and activate virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+python encryption_toolkit.py
 ```
 
-#### Running
+Open `http://localhost:5000` in your browser.
+
+### Run Tests
 
 ```bash
-# Run the application
-python src/main.py
+pip install pytest
+pytest tests/ -v
 ```
 
-### 📁 Project Structure
+### Project Structure
 
 ```
 Encryption-Toolkit/
-├── tests/         # Test suite
+├── encryption_toolkit.py   # Application (Flask + logic)
+├── requirements.txt
+├── tests/
 │   ├── __init__.py
 │   └── test_main.py
 ├── LICENSE
-├── README.md
-├── encryption_toolkit.py
-└── requirements.txt
+└── README.md
 ```
 
-### 🛠️ Tech Stack
+### License
 
-| Technology | Description | Role |
-|------------|-------------|------|
-| **Python** | Core Language | Primary |
-| **Flask** | Lightweight web framework | Framework |
+MIT — see [LICENSE](LICENSE).
 
-### 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### 👤 Author
-
-**Gabriel Demetrios Lafis**
-- GitHub: [@galafis](https://github.com/galafis)
-- LinkedIn: [Gabriel Demetrios Lafis](https://linkedin.com/in/gabriel-demetrios-lafis)
-
----
-
-## Português
-
-### 🎯 Visão Geral
-
-**Encryption Toolkit** é uma aplicação Python de nível profissional que demonstra práticas modernas de engenharia de software, incluindo arquitetura limpa, testes abrangentes, implantação containerizada e prontidão para CI/CD.
-
-A base de código compreende **420 linhas** de código-fonte organizadas em **1 módulos**, seguindo as melhores práticas do setor para manutenibilidade, escalabilidade e qualidade de código.
-
-### ✨ Funcionalidades Principais
-
-- **🏗️ Object-Oriented**: 1 core classes with clean architecture
-- **📐 Clean Architecture**: Modular design with clear separation of concerns
-- **🧪 Test Coverage**: Unit and integration tests for reliability
-- **📚 Documentation**: Comprehensive inline documentation and examples
-- **🔧 Configuration**: Environment-based configuration management
-
-### 🏗️ Arquitetura
-
-```mermaid
-graph TB
-    subgraph Client["🖥️ Client Layer"]
-        A[Web Client]
-        B[API Documentation]
-    end
-    
-    subgraph API["⚡ API Layer"]
-        C[Middleware Pipeline]
-        D[Route Handlers]
-        E[Business Logic]
-    end
-    
-    subgraph Data["💾 Data Layer"]
-        F[(Primary Database)]
-        G[Cache]
-    end
-    
-    A --> C
-    B --> C
-    C --> D --> E
-    E --> F
-    E --> G
-    
-    style Client fill:#e1f5fe
-    style API fill:#f3e5f5
-    style Data fill:#fff3e0
-```
-
-### 🚀 Início Rápido
-
-#### Prerequisites
-
-- Python 3.12+
-- pip (Python package manager)
-
-#### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/galafis/Encryption-Toolkit.git
-cd Encryption-Toolkit
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-#### Running
-
-```bash
-# Run the application
-python src/main.py
-```
-
-### 📁 Estrutura do Projeto
-
-```
-Encryption-Toolkit/
-├── tests/         # Test suite
-│   ├── __init__.py
-│   └── test_main.py
-├── LICENSE
-├── README.md
-├── encryption_toolkit.py
-└── requirements.txt
-```
-
-### 🛠️ Stack Tecnológica
-
-| Tecnologia | Descrição | Papel |
-|------------|-----------|-------|
-| **Python** | Core Language | Primary |
-| **Flask** | Lightweight web framework | Framework |
-
-### 🤝 Contribuindo
-
-Contribuições são bem-vindas! Sinta-se à vontade para enviar um Pull Request.
-
-### 📄 Licença
-
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
-
-### 👤 Autor
+### Author
 
 **Gabriel Demetrios Lafis**
 - GitHub: [@galafis](https://github.com/galafis)
